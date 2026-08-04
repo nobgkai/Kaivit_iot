@@ -1,306 +1,492 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kaivi Light Dashboard - Complete System</title>
-  <style>
-    :root {
-      --primary: #3182ce;
-      --success: #38a169;
-      --danger: #e53e3e;
-      --bg: #f7fafc;
-      --card-bg: #ffffff;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaivi Light · ห้องนอนน่ารัก</title>
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg);
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    .dashboard {
-      width: 100%;
-      max-width: 450px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+<style>
+  :root{
+    --cream:#FFF8EF;
+    --card:#FFFFFF;
+    --lavender:#DCD2F5;
+    --lavender-deep:#B7A6E8;
+    --pink:#FFD9E4;
+    --peach:#FFE3C7;
+    --glow:#FFDD94;
+    --glow-deep:#FFC163;
+    --ink:#4A3E63;
+    --ink-soft:#8C81A6;
+    --sage:#A9D8B8;
+    --sage-deep:#6FB98A;
+    --coral:#FFA8A8;
+    --coral-deep:#F17E7E;
+    --shadow: 0 8px 24px rgba(74,62,99,0.08);
+  }
 
-    .header-card {
-      background: linear-gradient(135deg, #2b6cb0, #4299e1);
-      color: white;
-      padding: 20px;
-      border-radius: 16px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
+  *{box-sizing:border-box;}
 
-    .card {
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
+  body{
+    margin:0;
+    padding:28px 16px 60px;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 15% 8%, #FBEFFF 0%, transparent 40%),
+      radial-gradient(circle at 85% 0%, #FFF1DE 0%, transparent 45%),
+      var(--cream);
+    font-family:'Nunito', sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+  }
 
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: #2d3748;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+  .dashboard{
+    width:100%;
+    max-width:440px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
 
-    .sensor-value {
-      font-size: 2.5rem;
-      font-weight: bold;
-      color: #d69e2e;
-      text-align: center;
-      margin: 10px 0;
-    }
+  /* Header */
+  .header-card{
+    position:relative;
+    background:linear-gradient(160deg, var(--lavender) 0%, var(--pink) 100%);
+    border-radius:28px;
+    padding:26px 20px 20px;
+    text-align:center;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
 
-    .status-badge {
-      display: inline-block;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-weight: bold;
-      color: white;
-      background-color: #cbd5e0;
-    }
+  .lamp-scene{
+    width:120px;
+    height:100px;
+    margin:0 auto 6px;
+    position:relative;
+  }
 
-    .btn-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
+  .lamp-glow{
+    position:absolute;
+    top:-6px; left:50%;
+    transform:translateX(-50%);
+    width:90px; height:90px;
+    border-radius:50%;
+    background:radial-gradient(circle, var(--glow) 0%, rgba(255,221,148,0) 70%);
+    opacity:0;
+    transition:opacity .6s ease;
+    filter:blur(2px);
+  }
+  .lamp-glow.on{ opacity:1; animation:flicker 3.5s ease-in-out infinite; }
 
-    .btn {
-      flex: 1;
-      padding: 12px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.2s;
-    }
+  @keyframes flicker{
+    0%,100%{ opacity:1; transform:translateX(-50%) scale(1); }
+    50%{ opacity:0.85; transform:translateX(-50%) scale(1.04); }
+  }
 
-    .btn-on { background-color: var(--success); color: white; }
-    .btn-on:hover { background-color: #2f855a; }
-    .btn-off { background-color: var(--danger); color: white; }
-    .btn-off:hover { background-color: #c53030; }
+  .lamp-svg{ position:relative; z-index:2; display:block; margin:0 auto; }
+  .bulb{ transition:fill .5s ease; fill:#EDE6FF; }
+  .bulb.on{ fill:var(--glow); }
 
-    /* Switch Style */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 26px;
-    }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc; transition: .4s; border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
-      background-color: white; transition: .4s; border-radius: 50%;
-    }
-    input:checked + .slider { background-color: var(--primary); }
-    input:checked + .slider:before { transform: translateX(24px); }
+  .header-card h2{
+    margin:4px 0 2px;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.35rem;
+    color:var(--ink);
+  }
+  .header-card p{
+    margin:0;
+    font-size:0.85rem;
+    color:var(--ink-soft);
+  }
 
-    .input-group {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
+  /* Card */
+  .card{
+    background:var(--card);
+    border-radius:24px;
+    padding:20px;
+    box-shadow:var(--shadow);
+  }
 
-    input[type="number"], input[type="time"] {
-      padding: 8px 12px;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      width: 120px;
-    }
+  .card-title{
+    font-family:'Fredoka', sans-serif;
+    font-size:1.02rem;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .card-title .emoji{ font-size:1.1rem; margin-right:6px; }
 
-    .info-text {
-      font-size: 0.85rem;
-      color: #718096;
-      margin-top: 6px;
-    }
-  </style>
+  .sensor-value{
+    font-family:'Fredoka', sans-serif;
+    font-size:2.6rem;
+    font-weight:600;
+    text-align:center;
+    margin:6px 0 4px;
+    color:var(--glow-deep);
+    letter-spacing:1px;
+  }
+  .sensor-sub{
+    text-align:center;
+    font-size:0.8rem;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+  }
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  .status-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-size:0.9rem;
+    color:var(--ink-soft);
+  }
+  .status-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 16px;
+    border-radius:20px;
+    font-weight:700;
+    font-size:0.85rem;
+    color:white;
+    background:#C8BEE0;
+  }
+  .status-badge .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:white;
+  }
+
+  /* Buttons */
+  .btn-group{ display:flex; gap:10px; }
+  .btn{
+    flex:1;
+    padding:14px;
+    font-family:'Nunito', sans-serif;
+    font-size:0.95rem;
+    font-weight:800;
+    border:none;
+    border-radius:16px;
+    cursor:pointer;
+    transition:transform .15s ease;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .btn:active{ transform:scale(0.96); }
+  .btn-on{ background:var(--sage); color:#245A3A; box-shadow:0 4px 0 var(--sage-deep); }
+  .btn-off{ background:var(--coral); color:#7A2222; box-shadow:0 4px 0 var(--coral-deep); }
+
+  /* Switch */
+  .switch{ position:relative; display:inline-block; width:48px; height:27px; flex-shrink:0; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .slider{
+    position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0;
+    background:#E5DFF5; transition:.3s; border-radius:34px;
+  }
+  .slider:before{
+    position:absolute; content:""; height:21px; width:21px; left:3px; bottom:3px;
+    background:white; transition:.3s; border-radius:50%;
+  }
+  input:checked + .slider{ background:var(--lavender-deep); }
+  input:checked + .slider:before{ transform:translateX(21px); }
+
+  /* Inputs */
+  .input-group{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:12px;
+    gap:10px;
+  }
+  .input-group label{ font-size:0.88rem; color:var(--ink-soft); font-weight:600; }
+
+  input[type="number"], input[type="time"]{
+    padding:9px 12px;
+    border:1.5px solid #EFE8FA;
+    background:#FDFBFF;
+    border-radius:12px;
+    font-size:0.9rem;
+    font-family:'Nunito', sans-serif;
+    color:var(--ink);
+    width:120px;
+    outline:none;
+  }
+
+  .info-text{
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    margin-top:10px;
+    line-height:1.5;
+    background:#FBF7FF;
+    padding:10px 12px;
+    border-radius:12px;
+  }
+
+  #timerStatus{
+    font-size:0.82rem;
+    color:var(--lavender-deep);
+    font-weight:700;
+    margin-top:12px;
+    text-align:center;
+    background:#F5F1FF;
+    padding:8px 10px;
+    border-radius:12px;
+  }
+
+  .chart-wrap{ position:relative; height:170px; margin-top:6px; }
+  .chart-legend{
+    display:flex;
+    justify-content:space-between;
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    margin-top:8px;
+  }
+</style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-  <div class="dashboard">
-    <!-- Header -->
-    <div class="header-card">
-      <h2 style="margin:0;">Kaivi_light Dashboard</h2>
-      <p style="margin:5px 0 0 0; opacity:0.9; font-size:0.9rem;">ระบบควบคุมไฟห้องนอนอัตโนมัติ</p>
-    </div>
+<div class="dashboard">
 
-    <!-- 1. ส่วนแสดงผลความสว่าง & สถานะไฟ -->
-    <div class="card">
-      <div class="card-title">ความสว่างห้อง (LDR Raw)</div>
-      <div id="ldrValue" class="sensor-value">--</div>
-      <div style="text-align: center; margin-top: 10px;">
-        <span>สถานะไฟปัจจุบัน: </span>
-        <span id="relayStatusBadge" class="status-badge">--</span>
-      </div>
+  <div class="header-card">
+    <div class="lamp-scene">
+      <div id="lampGlow" class="lamp-glow"></div>
+      <svg class="lamp-svg" width="90" height="90" viewBox="0 0 90 90" fill="none">
+        <path d="M30 30 L60 30 L70 52 L20 52 Z" fill="#F5EEFF" stroke="#C9BBEE" stroke-width="2" stroke-linejoin="round"/>
+        <circle id="lampBulb" class="bulb" cx="45" cy="41" r="7"/>
+        <rect x="43" y="52" width="4" height="22" rx="2" fill="#C9BBEE"/>
+        <ellipse cx="45" cy="78" rx="18" ry="5" fill="#C9BBEE"/>
+        <rect x="4" y="70" width="20" height="8" rx="3" fill="#FFD9E4"/>
+        <rect x="2" y="66" width="6" height="12" rx="2" fill="#FFC7D8"/>
+      </svg>
     </div>
+    <h2>Kaivi Light</h2>
+    <p>ระบบควบคุมไฟห้องนอนอัตโนมัติ 🌙</p>
+  </div>
 
-    <!-- 2. ควบคุมด้วยตนเอง (Manual Control) -->
-    <div class="card">
-      <div class="card-title">ควบคุมด้วยตนเอง</div>
-      <div class="btn-group">
-        <button class="btn btn-on" onclick="manualSetRelay('ON')">เปิดไฟ (ON)</button>
-        <button class="btn btn-off" onclick="manualSetRelay('OFF')">ปิดไฟ (OFF)</button>
-      </div>
-    </div>
-
-    <!-- 3. โหมดวัดแสงอัตโนมัติ (Auto LDR Mode) -->
-    <div class="card">
-      <div class="card-title">
-        <span>โหมดวัดแสงอัตโนมัติ</span>
-        <label class="switch">
-          <input type="checkbox" id="autoModeToggle" onchange="toggleAutoMode(this.checked)">
-          <span class="slider"></span>
-        </label>
-      </div>
-      <div class="input-group">
-        <label for="thresholdInput">เกณฑ์แสง (Threshold):</label>
-        <input type="number" id="thresholdInput" value="1500" onchange="updateThreshold(this.value)">
-      </div>
-      <div class="info-text">
-        * หากค่า LDR น้อยกว่าเกณฑ์ (มืด) ไฟจะ<b>เปิด</b>อัตโนมัติ<br>
-        * หากค่า LDR มากกว่าเกณฑ์ (สว่าง) ไฟจะ<b>ปิด</b>อัตโนมัติ
-      </div>
-    </div>
-
-    <!-- 4. ระบบตั้งเวลา เปิด-ปิดไฟ (Timer Control) -->
-    <div class="card">
-      <div class="card-title">ตั้งเวลาทำงาน (Timer)</div>
-      <div class="input-group">
-        <label for="timeOn">เวลาเปิดไฟ:</label>
-        <input type="time" id="timeOn" onchange="checkTimers()">
-      </div>
-      <div class="input-group">
-        <label for="timeOff">เวลาปิดไฟ:</label>
-        <input type="time" id="timeOff" onchange="checkTimers()">
-      </div>
-      <div id="timerStatus" class="info-text" style="color: var(--primary); margin-top:10px;">
-        ไม่ได้ตั้งเวลา
-      </div>
+  <!-- 1. ความสว่าง & สถานะไฟ -->
+  <div class="card">
+    <div class="card-title"><span><span class="emoji">🔆</span>ความสว่างห้อง</span></div>
+    <div id="ldrValue" class="sensor-value">--</div>
+    <div class="sensor-sub">ค่าที่วัดได้จากเซนเซอร์ (LDR Raw)</div>
+    <div class="status-row">
+      สถานะไฟตอนนี้
+      <span id="relayStatusBadge" class="status-badge"><span class="dot"></span>--</span>
     </div>
   </div>
 
-  <script>
-    // 1. ตั้งค่า Firebase
-    const firebaseConfig = {
-      databaseURL: "https://kaivit002-6fb93-default-rtdb.asia-southeast1.firebasedatabase.app"
-    };
+  <!-- กราฟความสว่าง -->
+  <div class="card">
+    <div class="card-title"><span><span class="emoji">📈</span>กราฟความสว่างย้อนหลัง</span></div>
+    <div class="chart-wrap">
+      <canvas id="ldrChart"></canvas>
+    </div>
+    <div class="chart-legend">
+      <span>ค่าจริงล่าสุด 30 จุด</span>
+      <span id="chartUpdated">รออัปเดต...</span>
+    </div>
+  </div>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+  <!-- 2. ควบคุมด้วยตนเอง -->
+  <div class="card">
+    <div class="card-title"><span><span class="emoji">🖐️</span>ควบคุมด้วยตนเอง</span></div>
+    <div class="btn-group">
+      <button class="btn btn-on" onclick="manualSetRelay('ON')">☀️ เปิดไฟ</button>
+      <button class="btn btn-off" onclick="manualSetRelay('OFF')">🌙 ปิดไฟ</button>
+    </div>
+  </div>
 
-    // ตัวแปรสถานะระบบ
-    let currentLdr = 0;
-    let isAutoMode = false;
-    let threshold = 1500;
+  <!-- 3. โหมดวัดแสงอัตโนมัติ -->
+  <div class="card">
+    <div class="card-title">
+      <span><span class="emoji">✨</span>โหมดวัดแสงอัตโนมัติ</span>
+      <label class="switch">
+        <input type="checkbox" id="autoModeToggle" onchange="toggleAutoMode(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="input-group">
+      <label for="thresholdInput">เกณฑ์แสง (Threshold)</label>
+      <input type="number" id="thresholdInput" value="1500" onchange="updateThreshold(this.value)">
+    </div>
+    <div class="info-text">
+      หากค่า LDR <b>น้อยกว่า</b>เกณฑ์ (มืด) ไฟจะ<b>เปิด</b>อัตโนมัติ<br>
+      หากค่า LDR <b>มากกว่า</b>เกณฑ์ (สว่าง) ไฟจะ<b>ปิด</b>อัตโนมัติ
+    </div>
+  </div>
 
-    // 2. ดึงค่า LDR Realtime และประมวลผล Auto Mode
-    db.ref('/kaivi_light/ldr_raw').on('value', (snapshot) => {
-      currentLdr = snapshot.val() ?? 0;
+  <!-- 4. ตั้งเวลา -->
+  <div class="card">
+    <div class="card-title"><span><span class="emoji">⏰</span>ตั้งเวลาทำงาน</span></div>
+    <div class="input-group">
+      <label for="timeOn">เวลาเปิดไฟ</label>
+      <input type="time" id="timeOn">
+    </div>
+    <div class="input-group">
+      <label for="timeOff">เวลาปิดไฟ</label>
+      <input type="time" id="timeOff">
+    </div>
+    <div id="timerStatus">ไม่ได้ตั้งเวลา</div>
+  </div>
+
+</div>
+
+<script>
+  // ---------- 1. FIREBASE INITIALIZATION ----------
+  const firebaseConfig = {
+    databaseURL: "https://kaivit002-6fb93-default-rtdb.asia-southeast1.firebasedatabase.app"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let currentLdr = 0;
+  let isAutoMode = false;
+  let threshold = 1500;
+
+  // ---------- 2. CHART SETUP (SAFE INIT) ----------
+  let ldrChart = null;
+  const MAX_POINTS = 30;
+  const ldrHistory = [];
+
+  try {
+    const ctx = document.getElementById('ldrChart').getContext('2d');
+    ldrChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'LDR',
+          data: [],
+          borderColor: '#FFC163',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#B7A6E8', font: { size: 9 }, maxTicksLimit: 5 } },
+          y: { grid: { color: '#F5EEFF' }, ticks: { color: '#B7A6E8', font: { size: 9 } } }
+        }
+      }
+    });
+  } catch (err) {
+    console.warn("Chart initialization skipped:", err);
+  }
+
+  function pushLdrPoint(value) {
+    if (!ldrChart) return;
+    const now = new Date();
+    const label = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+
+    ldrHistory.push({ t: label, v: value });
+    if (ldrHistory.length > MAX_POINTS) ldrHistory.shift();
+
+    ldrChart.data.labels = ldrHistory.map(p => p.t);
+    ldrChart.data.datasets[0].data = ldrHistory.map(p => p.v);
+    ldrChart.update('none');
+
+    document.getElementById('chartUpdated').innerText = 'อัปเดตล่าสุด ' + label;
+  }
+
+  // ---------- 3. REALTIME LISTENERS ----------
+  // ฟังค่า LDR
+  db.ref('/kaivi_light/ldr_raw').on('value', (snapshot) => {
+    const val = snapshot.val();
+    if (val !== null) {
+      currentLdr = val;
       document.getElementById('ldrValue').innerText = currentLdr;
+      pushLdrPoint(currentLdr);
 
-      // ทำงานอัตโนมัติตามแสงเมื่อเปิด Auto Mode
       if (isAutoMode) {
-        if (currentLdr < threshold) {
-          setRelay('ON');
-        } else {
-          setRelay('OFF');
-        }
+        setRelay(currentLdr < threshold ? 'ON' : 'OFF');
       }
-    });
+    }
+  });
 
-    // 3. ดึงสถานะ Relay Realtime
-    db.ref('/kaivi_light/relay_status').on('value', (snapshot) => {
-      const status = snapshot.val();
+  // ฟังสถานะ Relay
+  db.ref('/kaivi_light/relay_status').on('value', (snapshot) => {
+    const status = snapshot.val();
+    if (status) {
       const badge = document.getElementById('relayStatusBadge');
-      badge.innerText = status ?? '--';
+      const lampGlow = document.getElementById('lampGlow');
+      const lampBulb = document.getElementById('lampBulb');
+
+      badge.innerHTML = '<span class="dot"></span>' + status;
+
       if (status === 'ON') {
-        badge.style.backgroundColor = 'var(--success)';
+        badge.style.backgroundColor = 'var(--sage-deep)';
+        if (lampGlow) lampGlow.classList.add('on');
+        if (lampBulb) lampBulb.classList.add('on');
       } else {
-        badge.style.backgroundColor = 'var(--danger)';
-      }
-    });
-
-    // 4. ฟังก์ชันสั่งงาน Relay ไปยัง Firebase
-    function setRelay(status) {
-      db.ref('/kaivi_light/relay_status').set(status);
-    }
-
-    // สั่งงานด้วยปุ่ม Manual (จะปิดโหมด Auto เพื่อป้องกันสับสน)
-    function manualSetRelay(status) {
-      if (isAutoMode) {
-        document.getElementById('autoModeToggle').checked = false;
-        toggleAutoMode(false);
-      }
-      setRelay(status);
-    }
-
-    // 5. เปิด/ปิด โหมดอัตโนมัติ
-    function toggleAutoMode(enabled) {
-      isAutoMode = enabled;
-      if (isAutoMode) {
-        // ประมวลผลทันทีเมื่อเปิดโหมด
-        if (currentLdr < threshold) setRelay('ON');
-        else setRelay('OFF');
+        badge.style.backgroundColor = 'var(--coral-deep)';
+        if (lampGlow) lampGlow.classList.remove('on');
+        if (lampBulb) lampBulb.classList.remove('on');
       }
     }
+  });
 
-    function updateThreshold(val) {
-      threshold = parseInt(val) || 1500;
+  // ---------- 4. CONTROLS & FUNCTIONS ----------
+  function setRelay(status) {
+    db.ref('/kaivi_light/relay_status').set(status);
+  }
+
+  function manualSetRelay(status) {
+    if (isAutoMode) {
+      document.getElementById('autoModeToggle').checked = false;
+      isAutoMode = false;
+    }
+    setRelay(status);
+  }
+
+  function toggleAutoMode(enabled) {
+    isAutoMode = enabled;
+    if (isAutoMode) {
+      setRelay(currentLdr < threshold ? 'ON' : 'OFF');
+    }
+  }
+
+  function updateThreshold(val) {
+    threshold = parseInt(val) || 1500;
+  }
+
+  // ---------- 5. TIMER CHECK ----------
+  setInterval(() => {
+    const now = new Date();
+    const currentHHMM = String(now.getHours()).padStart(2,'0') + ":" + String(now.getMinutes()).padStart(2,'0');
+    const seconds = now.getSeconds();
+
+    const timeOn = document.getElementById('timeOn').value;
+    const timeOff = document.getElementById('timeOff').value;
+
+    if (seconds === 0) {
+      if (timeOn && currentHHMM === timeOn) setRelay('ON');
+      if (timeOff && currentHHMM === timeOff) setRelay('OFF');
     }
 
-    // 6. ระบบตรวจสอบและตั้งเวลา (ทำงานทุกๆ 1 วินาที)
-    setInterval(() => {
-      const now = new Date();
-      const currentHHMM = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
-      const seconds = now.getSeconds();
-
-      const timeOn = document.getElementById('timeOn').value;
-      const timeOff = document.getElementById('timeOff').value;
-
-      // ตรวจสอบเฉพาะวินาทีแรกของนาทีนั้นๆ
-      if (seconds === 0) {
-        if (timeOn && currentHHMM === timeOn) {
-          setRelay('ON');
-        }
-        if (timeOff && currentHHMM === timeOff) {
-          setRelay('OFF');
-        }
-      }
-
-      // แสดงข้อความสถานะการตั้งเวลา
-      let statusTxt = [];
-      if (timeOn) statusTxt.push(`ตั้งเวลาเปิด: ${timeOn} น.`);
-      if (timeOff) statusTxt.push(`ตั้งเวลาปิด: ${timeOff} น.`);
-      document.getElementById('timerStatus').innerText = statusTxt.length > 0 ? statusTxt.join(' | ') : 'ไม่ได้ตั้งเวลา';
-    }, 1000);
-  </script>
+    let statusTxt = [];
+    if (timeOn) statusTxt.push(`เปิด: ${timeOn} น.`);
+    if (timeOff) statusTxt.push(`ปิด: ${timeOff} น.`);
+    document.getElementById('timerStatus').innerText = statusTxt.length > 0 ? statusTxt.join(' | ') : 'ไม่ได้ตั้งเวลา';
+  }, 1000);
+</script>
 
 </body>
 </html>
