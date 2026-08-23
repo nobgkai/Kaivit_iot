@@ -248,13 +248,78 @@
     color:var(--ink-soft);
     margin-top:8px;
   }
+
+  /* Usage / how-to card */
+  .usage-card{
+    background:linear-gradient(160deg, #FBF7FF 0%, #FFF8EF 100%);
+    border:1.5px dashed var(--lavender);
+  }
+  .usage-list{
+    margin:0;
+    padding:0;
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .usage-list li{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    font-size:0.82rem;
+    color:var(--ink);
+    line-height:1.5;
+  }
+  .usage-icon{
+    flex-shrink:0;
+    width:26px; height:26px;
+    border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.9rem;
+    background:var(--lavender);
+  }
+  .usage-list b{ color:var(--ink); }
+
+  /* ---------------- DESKTOP LAYOUT ---------------- */
+  @media (min-width: 900px){
+    body{ padding:40px 24px; align-items:flex-start; }
+
+    .dashboard{
+      max-width:1120px;
+      display:grid;
+      grid-template-columns: 300px 1fr 1fr;
+      grid-template-rows: auto auto auto;
+      grid-template-areas:
+        "header brightness chart"
+        "header manual auto"
+        "header timer usage";
+      align-items:stretch;
+      gap:18px;
+    }
+
+    .header-card{
+      grid-area:header;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      border-radius:28px;
+    }
+    .header-card .lamp-scene{ margin-top:6px; }
+
+    .area-brightness{ grid-area:brightness; display:flex; flex-direction:column; justify-content:center; }
+    .area-chart{ grid-area:chart; }
+    .area-manual{ grid-area:manual; display:flex; flex-direction:column; }
+    .area-manual .btn-group{ flex:1; }
+    .area-auto{ grid-area:auto; }
+    .area-timer{ grid-area:timer; }
+    .area-usage{ grid-area:usage; }
+
+    .card{ margin:0; }
+    .chart-wrap{ height:220px; }
+  }
 </style>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Firebase SDK และ Chart.js ถูกโหลดแบบมี fallback หลาย CDN ในสคริปต์ท้ายหน้า -->
 </head>
 <body>
 
@@ -277,7 +342,7 @@
   </div>
 
   <!-- 1. ความสว่าง & สถานะไฟ -->
-  <div class="card">
+  <div class="card area-brightness">
     <div class="card-title"><span><span class="emoji">🔆</span>ความสว่างห้อง</span></div>
     <div id="ldrValue" class="sensor-value">--</div>
     <div class="sensor-sub">ค่าที่วัดได้จากเซนเซอร์ (LDR Raw)</div>
@@ -288,7 +353,7 @@
   </div>
 
   <!-- กราฟความสว่าง -->
-  <div class="card">
+  <div class="card area-chart">
     <div class="card-title"><span><span class="emoji">📈</span>กราฟความสว่างย้อนหลัง</span></div>
     <div class="chart-wrap">
       <canvas id="ldrChart"></canvas>
@@ -300,7 +365,7 @@
   </div>
 
   <!-- 2. ควบคุมด้วยตนเอง -->
-  <div class="card">
+  <div class="card area-manual">
     <div class="card-title"><span><span class="emoji">🖐️</span>ควบคุมด้วยตนเอง</span></div>
     <div class="btn-group">
       <button class="btn btn-on" onclick="manualSetRelay('ON')">☀️ เปิดไฟ</button>
@@ -309,7 +374,7 @@
   </div>
 
   <!-- 3. โหมดวัดแสงอัตโนมัติ -->
-  <div class="card">
+  <div class="card area-auto">
     <div class="card-title">
       <span><span class="emoji">✨</span>โหมดวัดแสงอัตโนมัติ</span>
       <label class="switch">
@@ -328,7 +393,7 @@
   </div>
 
   <!-- 4. ตั้งเวลา -->
-  <div class="card">
+  <div class="card area-timer">
     <div class="card-title"><span><span class="emoji">⏰</span>ตั้งเวลาทำงาน</span></div>
     <div class="input-group">
       <label for="timeOn">เวลาเปิดไฟ</label>
@@ -341,54 +406,145 @@
     <div id="timerStatus">ไม่ได้ตั้งเวลา</div>
   </div>
 
+  <!-- 5. คำแนะนำการใช้งาน -->
+  <div class="card usage-card area-usage">
+    <div class="card-title"><span><span class="emoji">💡</span>วิธีใช้งาน</span></div>
+    <ul class="usage-list">
+      <li><span class="usage-icon">🖐️</span><span>กด <b>เปิดไฟ / ปิดไฟ</b> เพื่อควบคุมไฟด้วยตัวเองได้ทันที</span></li>
+      <li><span class="usage-icon">✨</span><span>เปิดสวิตช์ <b>โหมดวัดแสงอัตโนมัติ</b> ให้ไฟเปิด-ปิดเองตามความสว่างในห้อง</span></li>
+      <li><span class="usage-icon">🔆</span><span>ตั้ง <b>เกณฑ์แสง</b> ให้สูงขึ้นถ้าอยากให้ไฟติดง่ายขึ้นตอนห้องเริ่มมืด</span></li>
+      <li><span class="usage-icon">⏰</span><span>ตั้ง <b>เวลาเปิด-ปิด</b> ล่วงหน้าได้ ระบบจะเปิด/ปิดไฟให้อัตโนมัติตามเวลานั้น</span></li>
+    </ul>
+  </div>
+
 </div>
 
 <script>
-  // ---------- 1. FIREBASE INITIALIZATION ----------
-  const firebaseConfig = {
-    databaseURL: "https://kaivit002-6fb93-default-rtdb.asia-southeast1.firebasedatabase.app"
+  // ---------- 0. SCRIPT LOADER WITH CDN FALLBACK ----------
+  function loadScript(urls) {
+    return new Promise((resolve, reject) => {
+      let i = 0;
+      function tryNext() {
+        if (i >= urls.length) { reject(new Error('ทุก CDN โหลดไม่สำเร็จ: ' + urls[0])); return; }
+        const s = document.createElement('script');
+        s.src = urls[i];
+        s.onload = () => resolve(urls[i]);
+        s.onerror = () => { i++; tryNext(); };
+        document.head.appendChild(s);
+      }
+      tryNext();
+    });
+  }
+
+  const CDN = {
+    firebaseApp: [
+      'https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-app-compat.min.js',
+      'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js',
+      'https://cdn.jsdelivr.net/npm/firebase@9.22.0/firebase-app-compat.js'
+    ],
+    firebaseDb: [
+      'https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-database-compat.min.js',
+      'https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js',
+      'https://cdn.jsdelivr.net/npm/firebase@9.22.0/firebase-database-compat.js'
+    ],
+    chartjs: [
+      'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js',
+      'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js',
+      'https://unpkg.com/chart.js@4.4.4/dist/chart.umd.min.js'
+    ]
   };
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+  function showConnectionError(msg) {
+    const badge = document.getElementById('relayStatusBadge');
+    if (badge) {
+      badge.innerHTML = '<span class="dot"></span>ต่อไม่ได้';
+      badge.style.backgroundColor = 'var(--coral-deep)';
+    }
+    const ldrEl = document.getElementById('ldrValue');
+    if (ldrEl) ldrEl.innerText = '--';
+    let banner = document.getElementById('connErrorBanner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'connErrorBanner';
+      banner.style.cssText = 'max-width:1120px;margin:0 auto 14px;padding:10px 14px;background:#FFE3E3;color:#7A2222;border-radius:14px;font-size:0.82rem;text-align:center;';
+      document.querySelector('.dashboard').before(banner);
+    }
+    banner.innerText = msg;
+  }
 
+  function showChartError(msg) {
+    const wrap = document.querySelector('.chart-wrap');
+    if (!wrap) return;
+    let note = document.getElementById('chartErrorNote');
+    if (!note) {
+      note = document.createElement('div');
+      note.id = 'chartErrorNote';
+      note.style.cssText = 'height:100%;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--ink-soft);font-size:0.82rem;padding:0 12px;';
+      wrap.appendChild(note);
+    }
+    note.innerText = msg;
+  }
+
+  let db = null;
   let currentLdr = 0;
   let isAutoMode = false;
   let threshold = 1500;
-
-  // ---------- 2. CHART SETUP (SAFE INIT) ----------
   let ldrChart = null;
   const MAX_POINTS = 30;
   const ldrHistory = [];
 
-  try {
-    const ctx = document.getElementById('ldrChart').getContext('2d');
-    ldrChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'LDR',
-          data: [],
-          borderColor: '#FFC163',
-          borderWidth: 2,
-          pointRadius: 0,
-          tension: 0.3,
-          fill: false
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: '#B7A6E8', font: { size: 9 }, maxTicksLimit: 5 } },
-          y: { grid: { color: '#F5EEFF' }, ticks: { color: '#B7A6E8', font: { size: 9 } } }
+  // ---------- 1. FIREBASE INITIALIZATION ----------
+  async function initFirebase() {
+    const firebaseConfig = {
+      databaseURL: "https://kaivit002-6fb93-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+    try {
+      await loadScript(CDN.firebaseApp);
+      await loadScript(CDN.firebaseDb);
+      if (typeof firebase === 'undefined') throw new Error('firebase ไม่ถูกกำหนดหลังโหลดสคริปต์');
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+      initRealtimeListeners();
+    } catch (err) {
+      console.warn('Firebase init failed:', err);
+      showConnectionError('เชื่อมต่อฐานข้อมูลไม่ได้ (โหลด Firebase SDK ไม่สำเร็จ) ลองรีเฟรชหน้าเว็บ หรือตรวจสอบอินเทอร์เน็ต/ตัวบล็อกสคริปต์');
+    }
+  }
+
+  // ---------- 2. CHART SETUP (SAFE INIT) ----------
+  async function initChart() {
+    try {
+      await loadScript(CDN.chartjs);
+      if (typeof Chart === 'undefined') throw new Error('Chart ไม่ถูกกำหนดหลังโหลดสคริปต์');
+      const ctx = document.getElementById('ldrChart').getContext('2d');
+      ldrChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'LDR',
+            data: [],
+            borderColor: '#FFC163',
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.3,
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#B7A6E8', font: { size: 9 }, maxTicksLimit: 5 } },
+            y: { grid: { color: '#F5EEFF' }, ticks: { color: '#B7A6E8', font: { size: 9 } } }
+          }
         }
-      }
-    });
-  } catch (err) {
-    console.warn("Chart initialization skipped:", err);
+      });
+    } catch (err) {
+      console.warn('Chart initialization skipped:', err);
+      showChartError('โหลดกราฟไม่สำเร็จ (Chart.js โหลดไม่ได้) ตรวจสอบอินเทอร์เน็ต/ตัวบล็อกสคริปต์');
+    }
   }
 
   function pushLdrPoint(value) {
@@ -407,65 +563,77 @@
   }
 
   // ---------- 3. REALTIME LISTENERS ----------
-  // ฟังค่า LDR
-  db.ref('/kaivi_light/ldr_raw').on('value', (snapshot) => {
-    const val = snapshot.val();
-    if (val !== null) {
-      currentLdr = val;
-      document.getElementById('ldrValue').innerText = currentLdr;
-      pushLdrPoint(currentLdr);
+  function initRealtimeListeners() {
+    if (!db) return;
+    // ฟังค่า LDR
+    db.ref('/kaivi_light/ldr_raw').on('value', (snapshot) => {
+      const val = snapshot.val();
+      if (val !== null) {
+        currentLdr = val;
+        document.getElementById('ldrValue').innerText = currentLdr;
+        pushLdrPoint(currentLdr);
 
-      if (isAutoMode) {
-        setRelay(currentLdr < threshold ? 'ON' : 'OFF');
+        if (isAutoMode) {
+          setRelay(currentLdr < threshold ? 'ON' : 'OFF');
+        }
       }
-    }
-  });
+    }, (err) => {
+      console.warn('LDR listener error:', err);
+      showConnectionError('อ่านค่าความสว่างไม่ได้ ตรวจสอบการเชื่อมต่อฐานข้อมูล');
+    });
 
-  // ฟังสถานะ Relay
-  db.ref('/kaivi_light/relay_status').on('value', (snapshot) => {
-    const status = snapshot.val();
-    if (status) {
-      const badge = document.getElementById('relayStatusBadge');
-      const lampGlow = document.getElementById('lampGlow');
-      const lampBulb = document.getElementById('lampBulb');
+    // ฟังสถานะ Relay
+    db.ref('/kaivi_light/relay_status').on('value', (snapshot) => {
+      const status = snapshot.val();
+      if (status) {
+        const badge = document.getElementById('relayStatusBadge');
+        const lampGlow = document.getElementById('lampGlow');
+        const lampBulb = document.getElementById('lampBulb');
 
-      badge.innerHTML = '<span class="dot"></span>' + status;
+        badge.innerHTML = '<span class="dot"></span>' + status;
 
-      if (status === 'ON') {
-        badge.style.backgroundColor = 'var(--sage-deep)';
-        if (lampGlow) lampGlow.classList.add('on');
-        if (lampBulb) lampBulb.classList.add('on');
-      } else {
-        badge.style.backgroundColor = 'var(--coral-deep)';
-        if (lampGlow) lampGlow.classList.remove('on');
-        if (lampBulb) lampBulb.classList.remove('on');
+        if (status === 'ON') {
+          badge.style.backgroundColor = 'var(--sage-deep)';
+          if (lampGlow) lampGlow.classList.add('on');
+          if (lampBulb) lampBulb.classList.add('on');
+        } else {
+          badge.style.backgroundColor = 'var(--coral-deep)';
+          if (lampGlow) lampGlow.classList.remove('on');
+          if (lampBulb) lampBulb.classList.remove('on');
+        }
       }
-    }
-  });
+    }, (err) => {
+      console.warn('Relay listener error:', err);
+    });
+  }
 
   // ---------- 4. CONTROLS & FUNCTIONS ----------
   function setRelay(status) {
-    db.ref('/kaivi_light/relay_status').set(status);
+    if (!db) { showConnectionError('ยังไม่ได้เชื่อมต่อฐานข้อมูล สั่งงานไม่ได้ตอนนี้'); return; }
+    db.ref('/kaivi_light/relay_status').set(status).catch((err) => {
+      console.warn('setRelay failed:', err);
+      showConnectionError('ส่งคำสั่งไม่สำเร็จ ลองใหม่อีกครั้ง');
+    });
   }
 
-  function manualSetRelay(status) {
+  window.manualSetRelay = function(status) {
     if (isAutoMode) {
       document.getElementById('autoModeToggle').checked = false;
       isAutoMode = false;
     }
     setRelay(status);
-  }
+  };
 
-  function toggleAutoMode(enabled) {
+  window.toggleAutoMode = function(enabled) {
     isAutoMode = enabled;
     if (isAutoMode) {
       setRelay(currentLdr < threshold ? 'ON' : 'OFF');
     }
-  }
+  };
 
-  function updateThreshold(val) {
+  window.updateThreshold = function(val) {
     threshold = parseInt(val) || 1500;
-  }
+  };
 
   // ---------- 5. TIMER CHECK ----------
   setInterval(() => {
@@ -486,6 +654,10 @@
     if (timeOff) statusTxt.push(`ปิด: ${timeOff} น.`);
     document.getElementById('timerStatus').innerText = statusTxt.length > 0 ? statusTxt.join(' | ') : 'ไม่ได้ตั้งเวลา';
   }, 1000);
+
+  // ---------- 6. BOOTSTRAP ----------
+  initFirebase();
+  initChart();
 </script>
 
 </body>
