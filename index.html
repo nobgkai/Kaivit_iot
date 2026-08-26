@@ -326,11 +326,12 @@
       max-width:1120px;
       display:grid;
       grid-template-columns: 300px 1fr 1fr;
-      grid-template-rows: auto auto auto;
+      grid-template-rows: auto auto auto auto;
       grid-template-areas:
         "header brightness chart"
         "header manual auto"
-        "header timer usage";
+        "header timer countdown"
+        "usage usage usage"; /* ขยายคำแนะนำให้เต็มความกว้างด้านล่าง */
       align-items:stretch;
       gap:18px;
     }
@@ -339,10 +340,10 @@
       grid-area:header;
       display:flex;
       flex-direction:column;
-      justify-content:center;
+      justify-content:flex-start; /* ดันให้อยู่ด้านบน */
       border-radius:28px;
     }
-    .header-card .lamp-scene{ margin-top:6px; }
+    .header-card .lamp-scene{ margin-top:16px; }
 
     .area-brightness{ grid-area:brightness; display:flex; flex-direction:column; justify-content:center; }
     .area-chart{ grid-area:chart; }
@@ -350,6 +351,7 @@
     .area-manual .btn-group{ flex:1; }
     .area-auto{ grid-area:auto; }
     .area-timer{ grid-area:timer; }
+    .area-countdown{ grid-area:countdown; }
     .area-usage{ grid-area:usage; }
 
     .card{ margin:0; }
@@ -357,7 +359,6 @@
   }
 </style>
 
-<!-- Firebase SDK และ Chart.js ถูกโหลดแบบมี fallback หลาย CDN ในสคริปต์ท้ายหน้า -->
 </head>
 <body>
 
@@ -430,9 +431,9 @@
     </div>
   </div>
 
-  <!-- 4. ตั้งเวลา -->
+  <!-- 4. ตั้งเวลาตามนาฬิกา -->
   <div class="card area-timer">
-    <div class="card-title"><span><span class="emoji">⏰</span>ตั้งเวลาทำงาน</span></div>
+    <div class="card-title"><span><span class="emoji">⏰</span>ตั้งเวลา (ตามนาฬิกา)</span></div>
 
     <div class="timer-block">
       <div class="timer-block-label">เวลาเปิดไฟ</div>
@@ -461,14 +462,41 @@
     <div id="timerStatus">ไม่ได้ตั้งเวลา</div>
   </div>
 
+  <!-- 4.5 นับถอยหลัง (Countdown) -->
+  <div class="card area-countdown">
+    <div class="card-title"><span><span class="emoji">⏳</span>ตั้งเวลานับถอยหลัง</span></div>
+    
+    <div class="timer-block">
+      <div class="hms-row">
+        <input type="number" id="cdH" min="0" max="23" placeholder="ชม." value="0">
+        <span class="hms-sep">:</span>
+        <input type="number" id="cdM" min="0" max="59" placeholder="นาที" value="0">
+        <span class="hms-sep">:</span>
+        <input type="number" id="cdS" min="0" max="59" placeholder="วินาที" value="10">
+      </div>
+    </div>
+
+    <div class="btn-group" style="margin-top: 14px;">
+      <button class="btn btn-on" onclick="startCountdown('ON')" style="font-size:0.8rem; padding:10px;">☀️ เปิดในอีก...</button>
+      <button class="btn btn-off" onclick="startCountdown('OFF')" style="font-size:0.8rem; padding:10px;">🌙 ปิดในอีก...</button>
+      <button class="btn" onclick="cancelCountdown()" style="background:#E5DFF5; color:var(--ink); font-size:0.8rem; padding:10px;">🛑 ยกเลิก</button>
+    </div>
+
+    <!-- ส่วนแสดงเวลาดิจิตอลตัวใหญ่ -->
+    <div id="countdownDisplay" style="font-size: 2.2rem; font-weight: 700; text-align: center; color: var(--lavender-deep); margin-top: 18px; font-family: 'Fredoka', sans-serif;">
+      00:00:00
+    </div>
+    <div id="countdownStatus" class="sensor-sub" style="margin-bottom:0; margin-top:4px;">ยังไม่มีการนับถอยหลัง</div>
+  </div>
+
   <!-- 5. คำแนะนำการใช้งาน -->
   <div class="card usage-card area-usage">
     <div class="card-title"><span><span class="emoji">💡</span>วิธีใช้งาน</span></div>
     <ul class="usage-list">
       <li><span class="usage-icon">🖐️</span><span>กด <b>เปิดไฟ / ปิดไฟ</b> เพื่อควบคุมไฟด้วยตัวเองได้ทันที</span></li>
       <li><span class="usage-icon">✨</span><span>เปิดสวิตช์ <b>โหมดวัดแสงอัตโนมัติ</b> ให้ไฟเปิด-ปิดเองตามความสว่างในห้อง (ค่ามากกว่าเกณฑ์ = มืด = ไฟติด)</span></li>
-      <li><span class="usage-icon">🔆</span><span>ตั้ง <b>เกณฑ์แสง</b> ให้ต่ำลงถ้าอยากให้ไฟติดง่ายขึ้นตอนห้องเริ่มมืด</span></li>
-      <li><span class="usage-icon">⏰</span><span>กรอก <b>ชั่วโมง นาที วินาที</b> แล้วกด <b>ตั้งเวลา</b> เพื่อให้ระบบเปิด/ปิดไฟให้อัตโนมัติตามเวลานั้น</span></li>
+      <li><span class="usage-icon">⏰</span><span><b>ตั้งเวลา (ตามนาฬิกา)</b> ระบบจะทำงานเมื่อถึงเวลาจริงที่ระบุไว้</span></li>
+      <li><span class="usage-icon">⏳</span><span><b>ตั้งเวลานับถอยหลัง</b> ระบุเวลาแล้วกดปุ่มเปิด/ปิด ระบบจะนับถอยหลังและทำงานทันทีเมื่อถึง 0</span></li>
     </ul>
   </div>
 
@@ -509,7 +537,7 @@
     ]
   };
 
-  // แจ้งสถานะเชื่อมต่อผ่าน badge เท่านั้น (ไม่มีแบนเนอร์แจ้งเตือนด้านบนแล้ว)
+  // แจ้งสถานะเชื่อมต่อผ่าน badge
   function showConnectionError(msg) {
     const badge = document.getElementById('relayStatusBadge');
     if (badge) {
@@ -544,6 +572,7 @@
 
   // ---------- 1. FIREBASE INITIALIZATION ----------
   async function initFirebase() {
+    // นำ Firebase Config ของคุณมาวางแทนที่บรรทัดนี้ได้เลยครับ
     const firebaseConfig = {
       databaseURL: "https://kaivit002-6fb93-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
@@ -622,8 +651,6 @@
         document.getElementById('ldrValue').innerText = currentLdr;
         pushLdrPoint(currentLdr);
 
-        // ค่ามากกว่า Threshold = แสงน้อย (มืด) -> เปิดไฟ
-        // ค่าน้อยกว่า Threshold = แสงเยอะ (สว่าง) -> ปิดไฟ
         if (isAutoMode) {
           setRelay(currentLdr > threshold ? 'ON' : 'OFF');
         }
@@ -724,6 +751,7 @@
     document.getElementById('timerStatus').innerText = statusTxt.length > 0 ? statusTxt.join(' | ') : 'ไม่ได้ตั้งเวลา';
   }
 
+  // ตัวตรวจสอบการตั้งเวลาตามนาฬิกา
   setInterval(() => {
     const now = new Date();
     const currentHMS = pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
@@ -732,7 +760,70 @@
     if (timeOffStr && currentHMS === timeOffStr) setRelay('OFF');
   }, 1000);
 
-  // ---------- 6. BOOTSTRAP ----------
+
+  // ---------- 6. COUNTDOWN LOGIC ----------
+  let countdownTarget = null;
+  let countdownAction = null;
+  let countdownInterval = null;
+
+  window.startCountdown = function(action) {
+    const h = clampField('cdH', 23);
+    const m = clampField('cdM', 59);
+    const s = clampField('cdS', 59);
+
+    const totalSeconds = (h * 3600) + (m * 60) + s;
+    if (totalSeconds <= 0) return; // หากตั้งเวลาเป็น 0 ให้ไม่ทำอะไร
+
+    countdownAction = action;
+    countdownTarget = Date.now() + (totalSeconds * 1000);
+
+    const statusText = (action === 'ON') ? 'กำลังนับถอยหลัง: เพื่อเปิดไฟ ☀️' : 'กำลังนับถอยหลัง: เพื่อปิดไฟ 🌙';
+    document.getElementById('countdownStatus').innerText = statusText;
+
+    // เคลียร์การทำงานเดิมก่อนเริ่มใหม่
+    if (countdownInterval) clearInterval(countdownInterval);
+    
+    // อัปเดตทันทีครั้งแรก และสั่งทำงานทุก 1 วินาที
+    updateCountdown(); 
+    countdownInterval = setInterval(updateCountdown, 1000);
+  };
+
+  window.cancelCountdown = function() {
+    if (countdownInterval) clearInterval(countdownInterval);
+    countdownTarget = null;
+    countdownAction = null;
+    document.getElementById('countdownDisplay').innerText = "00:00:00";
+    document.getElementById('countdownStatus').innerText = "ยกเลิกแล้ว";
+  };
+
+  function updateCountdown() {
+    if (!countdownTarget) return;
+
+    let remainMs = countdownTarget - Date.now();
+    
+    // เมื่อเวลาถึง 0 (หมดเวลา)
+    if (remainMs <= 0) {
+      clearInterval(countdownInterval);
+      countdownTarget = null;
+      document.getElementById('countdownDisplay').innerText = "00:00:00";
+      document.getElementById('countdownStatus').innerText = "ทำงานเสร็จสิ้น!";
+      
+      // สั่งเปิดหรือปิดไฟ
+      manualSetRelay(countdownAction); 
+      return;
+    }
+
+    // คำนวณเวลาที่เหลือเพื่อแสดงผล
+    let remainSec = Math.floor(remainMs / 1000);
+    let h = Math.floor(remainSec / 3600);
+    remainSec %= 3600;
+    let m = Math.floor(remainSec / 60);
+    let s = remainSec % 60;
+
+    document.getElementById('countdownDisplay').innerText = pad2(h) + ':' + pad2(m) + ':' + pad2(s);
+  }
+
+  // ---------- 7. BOOTSTRAP ----------
   initFirebase();
   initChart();
 </script>
