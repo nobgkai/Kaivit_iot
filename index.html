@@ -249,6 +249,44 @@
     margin-top:8px;
   }
 
+  /* HMS timer group */
+  .timer-block{ margin-top:14px; }
+  .timer-block:first-child{ margin-top:0; }
+  .timer-block-label{
+    font-size:0.88rem;
+    color:var(--ink-soft);
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .hms-row{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .hms-row input[type="number"]{
+    width:100%;
+    min-width:0;
+    text-align:center;
+    padding:9px 4px;
+  }
+  .hms-sep{
+    font-weight:700;
+    color:var(--ink-soft);
+  }
+  .btn-set{
+    flex-shrink:0;
+    border:none;
+    border-radius:12px;
+    background:var(--lavender-deep);
+    color:white;
+    font-family:'Nunito', sans-serif;
+    font-weight:800;
+    font-size:0.82rem;
+    padding:9px 12px;
+    cursor:pointer;
+  }
+  .btn-set:active{ transform:scale(0.96); }
+
   /* Usage / how-to card */
   .usage-card{
     background:linear-gradient(160deg, #FBF7FF 0%, #FFF8EF 100%);
@@ -387,22 +425,39 @@
       <input type="number" id="thresholdInput" value="1500" onchange="updateThreshold(this.value)">
     </div>
     <div class="info-text">
-      หากค่า LDR <b>น้อยกว่า</b>เกณฑ์ (มืด) ไฟจะ<b>เปิด</b>อัตโนมัติ<br>
-      หากค่า LDR <b>มากกว่า</b>เกณฑ์ (สว่าง) ไฟจะ<b>ปิด</b>อัตโนมัติ
+      หากค่า LDR <b>มากกว่า</b>เกณฑ์ (แสงน้อย/มืด) ไฟจะ<b>เปิด</b>อัตโนมัติ<br>
+      หากค่า LDR <b>น้อยกว่า</b>เกณฑ์ (แสงเยอะ/สว่าง) ไฟจะ<b>ปิด</b>อัตโนมัติ
     </div>
   </div>
 
   <!-- 4. ตั้งเวลา -->
   <div class="card area-timer">
     <div class="card-title"><span><span class="emoji">⏰</span>ตั้งเวลาทำงาน</span></div>
-    <div class="input-group">
-      <label for="timeOn">เวลาเปิดไฟ</label>
-      <input type="time" id="timeOn">
+
+    <div class="timer-block">
+      <div class="timer-block-label">เวลาเปิดไฟ</div>
+      <div class="hms-row">
+        <input type="number" id="onH" min="0" max="23" placeholder="ชม.">
+        <span class="hms-sep">:</span>
+        <input type="number" id="onM" min="0" max="59" placeholder="นาที">
+        <span class="hms-sep">:</span>
+        <input type="number" id="onS" min="0" max="59" placeholder="วินาที">
+        <button class="btn-set" onclick="setTimerOn()">ตั้งเวลา</button>
+      </div>
     </div>
-    <div class="input-group">
-      <label for="timeOff">เวลาปิดไฟ</label>
-      <input type="time" id="timeOff">
+
+    <div class="timer-block">
+      <div class="timer-block-label">เวลาปิดไฟ</div>
+      <div class="hms-row">
+        <input type="number" id="offH" min="0" max="23" placeholder="ชม.">
+        <span class="hms-sep">:</span>
+        <input type="number" id="offM" min="0" max="59" placeholder="นาที">
+        <span class="hms-sep">:</span>
+        <input type="number" id="offS" min="0" max="59" placeholder="วินาที">
+        <button class="btn-set" onclick="setTimerOff()">ตั้งเวลา</button>
+      </div>
     </div>
+
     <div id="timerStatus">ไม่ได้ตั้งเวลา</div>
   </div>
 
@@ -411,9 +466,9 @@
     <div class="card-title"><span><span class="emoji">💡</span>วิธีใช้งาน</span></div>
     <ul class="usage-list">
       <li><span class="usage-icon">🖐️</span><span>กด <b>เปิดไฟ / ปิดไฟ</b> เพื่อควบคุมไฟด้วยตัวเองได้ทันที</span></li>
-      <li><span class="usage-icon">✨</span><span>เปิดสวิตช์ <b>โหมดวัดแสงอัตโนมัติ</b> ให้ไฟเปิด-ปิดเองตามความสว่างในห้อง</span></li>
-      <li><span class="usage-icon">🔆</span><span>ตั้ง <b>เกณฑ์แสง</b> ให้สูงขึ้นถ้าอยากให้ไฟติดง่ายขึ้นตอนห้องเริ่มมืด</span></li>
-      <li><span class="usage-icon">⏰</span><span>ตั้ง <b>เวลาเปิด-ปิด</b> ล่วงหน้าได้ ระบบจะเปิด/ปิดไฟให้อัตโนมัติตามเวลานั้น</span></li>
+      <li><span class="usage-icon">✨</span><span>เปิดสวิตช์ <b>โหมดวัดแสงอัตโนมัติ</b> ให้ไฟเปิด-ปิดเองตามความสว่างในห้อง (ค่ามากกว่าเกณฑ์ = มืด = ไฟติด)</span></li>
+      <li><span class="usage-icon">🔆</span><span>ตั้ง <b>เกณฑ์แสง</b> ให้ต่ำลงถ้าอยากให้ไฟติดง่ายขึ้นตอนห้องเริ่มมืด</span></li>
+      <li><span class="usage-icon">⏰</span><span>กรอก <b>ชั่วโมง นาที วินาที</b> แล้วกด <b>ตั้งเวลา</b> เพื่อให้ระบบเปิด/ปิดไฟให้อัตโนมัติตามเวลานั้น</span></li>
     </ul>
   </div>
 
@@ -454,6 +509,7 @@
     ]
   };
 
+  // แจ้งสถานะเชื่อมต่อผ่าน badge เท่านั้น (ไม่มีแบนเนอร์แจ้งเตือนด้านบนแล้ว)
   function showConnectionError(msg) {
     const badge = document.getElementById('relayStatusBadge');
     if (badge) {
@@ -462,14 +518,7 @@
     }
     const ldrEl = document.getElementById('ldrValue');
     if (ldrEl) ldrEl.innerText = '--';
-    let banner = document.getElementById('connErrorBanner');
-    if (!banner) {
-      banner = document.createElement('div');
-      banner.id = 'connErrorBanner';
-      banner.style.cssText = 'max-width:1120px;margin:0 auto 14px;padding:10px 14px;background:#FFE3E3;color:#7A2222;border-radius:14px;font-size:0.82rem;text-align:center;';
-      document.querySelector('.dashboard').before(banner);
-    }
-    banner.innerText = msg;
+    console.warn(msg);
   }
 
   function showChartError(msg) {
@@ -507,7 +556,7 @@
       initRealtimeListeners();
     } catch (err) {
       console.warn('Firebase init failed:', err);
-      showConnectionError('เชื่อมต่อฐานข้อมูลไม่ได้ (โหลด Firebase SDK ไม่สำเร็จ) ลองรีเฟรชหน้าเว็บ หรือตรวจสอบอินเทอร์เน็ต/ตัวบล็อกสคริปต์');
+      showConnectionError('เชื่อมต่อฐานข้อมูลไม่ได้ (โหลด Firebase SDK ไม่สำเร็จ)');
     }
   }
 
@@ -573,8 +622,10 @@
         document.getElementById('ldrValue').innerText = currentLdr;
         pushLdrPoint(currentLdr);
 
+        // ค่ามากกว่า Threshold = แสงน้อย (มืด) -> เปิดไฟ
+        // ค่าน้อยกว่า Threshold = แสงเยอะ (สว่าง) -> ปิดไฟ
         if (isAutoMode) {
-          setRelay(currentLdr < threshold ? 'ON' : 'OFF');
+          setRelay(currentLdr > threshold ? 'ON' : 'OFF');
         }
       }
     }, (err) => {
@@ -627,7 +678,7 @@
   window.toggleAutoMode = function(enabled) {
     isAutoMode = enabled;
     if (isAutoMode) {
-      setRelay(currentLdr < threshold ? 'ON' : 'OFF');
+      setRelay(currentLdr > threshold ? 'ON' : 'OFF');
     }
   };
 
@@ -635,24 +686,50 @@
     threshold = parseInt(val) || 1500;
   };
 
-  // ---------- 5. TIMER CHECK ----------
+  // ---------- 5. TIMER (ชั่วโมง / นาที / วินาที) ----------
+  let timeOnStr = null;
+  let timeOffStr = null;
+
+  function pad2(n){ return String(n).padStart(2,'0'); }
+
+  function clampField(id, max){
+    const el = document.getElementById(id);
+    let v = parseInt(el.value);
+    if (isNaN(v)) v = 0;
+    v = Math.max(0, Math.min(max, v));
+    el.value = v;
+    return v;
+  }
+
+  window.setTimerOn = function(){
+    const h = clampField('onH', 23);
+    const m = clampField('onM', 59);
+    const s = clampField('onS', 59);
+    timeOnStr = pad2(h) + ':' + pad2(m) + ':' + pad2(s);
+    updateTimerStatus();
+  };
+
+  window.setTimerOff = function(){
+    const h = clampField('offH', 23);
+    const m = clampField('offM', 59);
+    const s = clampField('offS', 59);
+    timeOffStr = pad2(h) + ':' + pad2(m) + ':' + pad2(s);
+    updateTimerStatus();
+  };
+
+  function updateTimerStatus(){
+    let statusTxt = [];
+    if (timeOnStr) statusTxt.push(`เปิด: ${timeOnStr} น.`);
+    if (timeOffStr) statusTxt.push(`ปิด: ${timeOffStr} น.`);
+    document.getElementById('timerStatus').innerText = statusTxt.length > 0 ? statusTxt.join(' | ') : 'ไม่ได้ตั้งเวลา';
+  }
+
   setInterval(() => {
     const now = new Date();
-    const currentHHMM = String(now.getHours()).padStart(2,'0') + ":" + String(now.getMinutes()).padStart(2,'0');
-    const seconds = now.getSeconds();
+    const currentHMS = pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
 
-    const timeOn = document.getElementById('timeOn').value;
-    const timeOff = document.getElementById('timeOff').value;
-
-    if (seconds === 0) {
-      if (timeOn && currentHHMM === timeOn) setRelay('ON');
-      if (timeOff && currentHHMM === timeOff) setRelay('OFF');
-    }
-
-    let statusTxt = [];
-    if (timeOn) statusTxt.push(`เปิด: ${timeOn} น.`);
-    if (timeOff) statusTxt.push(`ปิด: ${timeOff} น.`);
-    document.getElementById('timerStatus').innerText = statusTxt.length > 0 ? statusTxt.join(' | ') : 'ไม่ได้ตั้งเวลา';
+    if (timeOnStr && currentHMS === timeOnStr) setRelay('ON');
+    if (timeOffStr && currentHMS === timeOffStr) setRelay('OFF');
   }, 1000);
 
   // ---------- 6. BOOTSTRAP ----------
